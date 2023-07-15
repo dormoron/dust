@@ -2,8 +2,8 @@ package valuer
 
 import (
 	"database/sql"
-	"dust/internal/errs"
-	"dust/model"
+	"github.com/nothingZero/dust/internal/errs"
+	"github.com/nothingZero/dust/model"
 	"reflect"
 )
 

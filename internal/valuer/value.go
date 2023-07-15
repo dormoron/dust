@@ -2,7 +2,7 @@ package valuer
 
 import (
 	"database/sql"
-	"dust/model"
+	"github.com/nothingZero/dust/model"
 )
 
 type Value interface {

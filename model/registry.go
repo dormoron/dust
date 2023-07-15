@@ -1,7 +1,7 @@
 package model
 
 import (
-	"dust/internal/errs"
+	"github.com/nothingZero/dust/internal/errs"
 	"reflect"
 	"strings"
 	"sync"
