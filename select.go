@@ -188,12 +188,7 @@ func (s *Selector[T]) Get(ctx context.Context) (*T, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	root := s.getHandler
-	for i := len(s.mils) - 1; i >= 0; i-- {
-		root = s.mils[i](root)
-	}
-	res := root(ctx, &QueryContext{
+	res := get[T](ctx, s.sess, s.core, &QueryContext{
 		Type:    "SELECT",
 		Builder: s,
 		Model:   s.model,
@@ -202,32 +197,6 @@ func (s *Selector[T]) Get(ctx context.Context) (*T, error) {
 		return res.Result.(*T), res.Err
 	}
 	return nil, res.Err
-}
-
-var _ Handler = (&Selector[any]{}).getHandler
-
-func (s *Selector[T]) getHandler(ctx context.Context, qc *QueryContext) *QueryResult {
-	q, err := s.Build()
-	if err != nil {
-		return &QueryResult{Err: err}
-	}
-	// 发起查询
-	rows, err := s.sess.queryContext(ctx, q.SQL, q.Args...)
-	if err != nil {
-		return &QueryResult{Err: err}
-	}
-	if !rows.Next() {
-		// 没有数据
-		return &QueryResult{Err: ErrNoRows}
-	}
-
-	tp := new(T)
-	val := s.creator(s.model, tp)
-	err = val.SetColumns(rows)
-	return &QueryResult{
-		Err:    err,
-		Result: tp,
-	}
 }
 
 func (s *Selector[T]) GetMulti(ctx context.Context) ([]*T, error) {

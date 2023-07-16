@@ -116,11 +116,7 @@ func (u *Updater[T]) Exec(ctx context.Context) Result {
 			err: err,
 		}
 	}
-	root := u.execHandle
-	for j := len(u.mils) - 1; j >= 0; j-- {
-		root = u.mils[j](root)
-	}
-	res := root(ctx, &QueryContext{
+	res := exec(ctx, u.sess, u.core, &QueryContext{
 		Type:    "UPDATE",
 		Builder: u,
 		Model:   u.model,
@@ -133,19 +129,6 @@ func (u *Updater[T]) Exec(ctx context.Context) Result {
 		err: res.Err,
 		res: sqlResult,
 	}
-}
-
-var _ Handler = (&Updater[int]{}).execHandle
-
-func (u *Updater[T]) execHandle(ctx context.Context, qn *QueryContext) *QueryResult {
-	q, err := u.Build()
-	if err != nil {
-		return &QueryResult{
-			Result: Result{err: err},
-		}
-	}
-	res, err := u.sess.execContext(ctx, q.SQL, q.Args...)
-	return &QueryResult{Result: Result{err: err, res: res}}
 }
 
 func AssignNotNilColumns(entity interface{}) []Assignable {

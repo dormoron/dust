@@ -146,11 +146,7 @@ func (i *Inserter[T]) Exec(ctx context.Context) Result {
 			err: err,
 		}
 	}
-	root := i.execHandle
-	for j := len(i.mils) - 1; j >= 0; j-- {
-		root = i.mils[j](root)
-	}
-	res := root(ctx, &QueryContext{
+	res := exec(ctx, i.sess, i.core, &QueryContext{
 		Type:    "INSERT",
 		Builder: i,
 		Model:   i.model,
@@ -162,25 +158,5 @@ func (i *Inserter[T]) Exec(ctx context.Context) Result {
 	return Result{
 		err: res.Err,
 		res: sqlResult,
-	}
-}
-
-var _ Handler = (&Inserter[int]{}).execHandle
-
-func (i *Inserter[T]) execHandle(ctx context.Context, qc *QueryContext) *QueryResult {
-	q, err := i.Build()
-	if err != nil {
-		return &QueryResult{
-			Result: Result{
-				err: err,
-			},
-		}
-	}
-	res, err := i.sess.execContext(ctx, q.SQL, q.Args...)
-	return &QueryResult{
-		Result: Result{
-			err: err,
-			res: res,
-		},
 	}
 }
